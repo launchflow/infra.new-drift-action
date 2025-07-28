@@ -8,14 +8,18 @@ branding:
 
 # Define your inputs here.
 inputs:
-  command:
-    description: 'The infra command to run (e.g., "init", "deploy", "status")'
-    required: false
-    default: "--help"
   working-directory:
     description: "Working directory to run the command in"
     required: false
     default: "."
+  github-repo:
+    description: "GitHub repository to pass to the drift command (defaults to current repository)"
+    required: false
+    default: ""
+  github-ref:
+    description: "GitHub ref to pass to the drift command (defaults to current ref)"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -32,4 +36,12 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        uvx --from infra-new infra ${{ inputs.command }}
+        REPO="${{ inputs.github-repo }}"
+        if [ -z "$REPO" ]; then
+          REPO="${{ github.repository }}"
+        fi
+        REF="${{ inputs.github-ref }}"
+        if [ -z "$REF" ]; then
+          REF="${{ github.ref }}"
+        fi
+        uvx --from infra-new infra drift --github-repo "$REPO" --github-ref "$REF" ${{ inputs.command }}
