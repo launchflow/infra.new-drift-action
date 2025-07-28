@@ -23,6 +23,9 @@ inputs:
   api-key:
     description: "API key for the infra command"
     required: true
+  plan-file-path:
+    description: "Path to a json terraform plan. Can be create by running `terraform plan -out terraform.plan` followed by `terraform show -json > terraform-plan.json`"
+    required: true
 
 runs:
   using: "composite"
@@ -60,4 +63,4 @@ runs:
           REF="${{ github.ref }}"
         fi
         REPO_ID="${{ steps.get-repo-id.outputs.repo-id }}"
-        uvx --from infra-new infra drift --github-ref "$REF" --github-repo-id "$REPO_ID" --api-key "${{ inputs.api-key }}"
+        uvx --from infra-new infra drift --github-ref "$REF" --github-repo-id "$REPO_ID" --api-key "${{ inputs.api-key }} --plan-file-path ${{ inputs.plan-file-path }}"
