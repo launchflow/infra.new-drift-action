@@ -1,6 +1,6 @@
-name: 'Infra CLI Action'
-description: 'Install and run the infra CLI from the infra-new PyPI package'
-author: 'infra-new'
+name: "Infra CLI Action"
+description: "Install and run the infra CLI from the infra-new PyPI package"
+author: "infra-new"
 
 branding:
   icon: terminal
@@ -11,32 +11,25 @@ inputs:
   command:
     description: 'The infra command to run (e.g., "init", "deploy", "status")'
     required: false
-    default: '--help'
+    default: "--help"
   working-directory:
-    description: 'Working directory to run the command in'
+    description: "Working directory to run the command in"
     required: false
-    default: '.'
-  python-version:
-    description: 'Python version to use'
-    required: false
-    default: '3.11'
+    default: "."
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ inputs.python-version }}
-    
-    - name: Install infra CLI
-      shell: bash
-      run: |
-        python -m pip install --upgrade pip
-        pip install infra-new
-    
+        python-version: 3.11
+
     - name: Run infra command
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        infra ${{ inputs.command }}
+        uvx --from infra-new infra ${{ inputs.command }}
