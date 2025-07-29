@@ -42,14 +42,11 @@ runs:
       with:
         python-version: 3.11
 
-    - name: Get repository ID and commit hash
+    - name: Get commit hash
       id: get-repo-info
       shell: bash
       run: |
-        REPO="${{ inputs.github-repo }}"
-        if [ -z "$REPO" ]; then
-          REPO="${{ github.repository }}"
-        fi
+
         REF="${{ inputs.github-ref }}"
         if [ -z "$REF" ]; then
           REF="${{ github.ref }}"
@@ -67,5 +64,9 @@ runs:
         ACCESS_TOKEN="${{ inputs.github-access-token }}"
         if [ -z "$ACCESS_TOKEN" ]; then
           ACCESS_TOKEN="${{ github.token }}"
+        fi
+        REPO="${{ inputs.github-repo }}"
+        if [ -z "$REPO" ]; then
+          REPO="${{ github.repository }}"
         fi
         uvx --from infra-new infra drift --github-ref "$COMMIT_HASH" --github-repo-name "$REPO" --api-key "${{ inputs.api-key }}" --plan-file-path "${{ inputs.plan-file-path }}" --github-access-token "$ACCESS_TOKEN"
