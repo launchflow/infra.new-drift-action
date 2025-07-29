@@ -55,10 +55,6 @@ runs:
           REF="${{ github.ref }}"
         fi
 
-        REPO_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
-          "https://api.github.com/repos/$REPO" | jq -r '.id')
-        echo "repo-id=$REPO_ID" >> $GITHUB_OUTPUT
-
         COMMIT_HASH=$(curl -s -H "Authorization: token ${{ github.token }}" \
           "https://api.github.com/repos/$REPO/commits/$REF" | jq -r '.sha')
         echo "commit-hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
@@ -67,10 +63,9 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        REPO_ID="${{ steps.get-repo-info.outputs.repo-id }}"
         COMMIT_HASH="${{ steps.get-repo-info.outputs.commit-hash }}"
         ACCESS_TOKEN="${{ inputs.github-access-token }}"
         if [ -z "$ACCESS_TOKEN" ]; then
           ACCESS_TOKEN="${{ github.token }}"
         fi
-        uvx --from infra-new infra drift --github-ref "$COMMIT_HASH" --github-repo-id "$REPO_ID" --api-key "${{ inputs.api-key }}" --plan-file-path "${{ inputs.plan-file-path }}" --github-access-token "$ACCESS_TOKEN"
+        uvx --from infra-new infra drift --github-ref "$COMMIT_HASH" --github-repo-name "$REPO" --api-key "${{ inputs.api-key }}" --plan-file-path "${{ inputs.plan-file-path }}" --github-access-token "$ACCESS_TOKEN"
