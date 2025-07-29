@@ -62,6 +62,5 @@ runs:
         if [ -z "$REF" ]; then
           REF="${{ github.ref }}"
         fi
-        echo "ref $REF"
         REPO_ID="${{ steps.get-repo-id.outputs.repo-id }}"
         uvx --from infra-new infra drift --github-ref "$REF" --github-repo-id "$REPO_ID" --api-key "${{ inputs.api-key }}" --plan-file-path "${{ inputs.plan-file-path }}"
