@@ -26,6 +26,9 @@ inputs:
   plan-file-path:
     description: "Path to a json terraform plan. Can be create by running `terraform plan -out terraform.plan` followed by `terraform show -json > terraform-plan.json`"
     required: true
+  backend-dir:
+    description: "Backend directory path"
+    required: true
   github-access-token:
     description: "GitHub access token to pass to the drift command"
     required: false
@@ -76,4 +79,4 @@ runs:
         REPO="${{ steps.get-repo-info.outputs.repo }}"
         ACCESS_TOKEN="${{ steps.get-repo-info.outputs.access-token }}"
 
-        uvx --from infra-new infra drift --github-ref "$COMMIT_HASH" --github-repo-name "$REPO" --api-key "${{ inputs.api-key }}" --plan-file-path "${{ inputs.plan-file-path }}" --github-access-token "$ACCESS_TOKEN"
+        uvx --from infra-new infra drift --github-ref "$COMMIT_HASH" --github-repo-name "$REPO" --api-key "${{ inputs.api-key }}" --plan-file-path "${{ inputs.plan-file-path }}" --backend-dir "${{ inputs.backend-dir }}" --github-access-token "$ACCESS_TOKEN"
