@@ -38,21 +38,9 @@ runs:
       with:
         python-version: 3.11
 
-    - name: Get repository ID
-      id: get-repo-id
+    - name: Get repository ID and commit hash
+      id: get-repo-info
       shell: bash
-      run: |
-        REPO="${{ inputs.github-repo }}"
-        if [ -z "$REPO" ]; then
-          REPO="${{ github.repository }}"
-        fi
-        REPO_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
-          "https://api.github.com/repos/$REPO" | jq -r '.id')
-        echo "repo-id=$REPO_ID" >> $GITHUB_OUTPUT
-
-    - name: Run infra command
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
       run: |
         REPO="${{ inputs.github-repo }}"
         if [ -z "$REPO" ]; then
@@ -62,5 +50,19 @@ runs:
         if [ -z "$REF" ]; then
           REF="${{ github.ref }}"
         fi
-        REPO_ID="${{ steps.get-repo-id.outputs.repo-id }}"
-        uvx --from infra-new infra drift --github-ref "$REF" --github-repo-id "$REPO_ID" --api-key "${{ inputs.api-key }}" --plan-file-path "${{ inputs.plan-file-path }}"
+
+        REPO_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
+          "https://api.github.com/repos/$REPO" | jq -r '.id')
+        echo "repo-id=$REPO_ID" >> $GITHUB_OUTPUT
+
+        COMMIT_HASH=$(curl -s -H "Authorization: token ${{ github.token }}" \
+          "https://api.github.com/repos/$REPO/commits/$REF" | jq -r '.sha')
+        echo "commit-hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+
+    - name: Run infra command
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        REPO_ID="${{ steps.get-repo-info.outputs.repo-id }}"
+        COMMIT_HASH="${{ steps.get-repo-info.outputs.commit-hash }}"
+        uvx --from infra-new infra drift --github-ref "$COMMIT_HASH" --github-repo-id "$REPO_ID" --api-key "${{ inputs.api-key }}" --plan-file-path "${{ inputs.plan-file-path }}"
