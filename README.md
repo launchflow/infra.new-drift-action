@@ -1,7 +1,5 @@
 # infra.new drift action
 
-[![CI](https://github.com/infra-new/drift-action/actions/workflows/test.yml/badge.svg)](https://github.com/infra-new/drift-action/actions/workflows/test.yml)
-
 This action installs and runs the infra CLI from the `infra-new` PyPI package to perform drift detection on your Terraform infrastructure.
 
 ## Usage
